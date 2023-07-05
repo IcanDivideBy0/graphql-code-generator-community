@@ -76,6 +76,30 @@ export interface ReactApolloRawPluginConfig extends RawClientSideBasePluginConfi
    */
   withHooks?: boolean;
   /**
+   * @description Customized the output by enabling/disabling the generated React Hooks. Requires you to use `@apollo/client@beta` in order to use the useSuspenseQuery hook. For more details: https://www.apollographql.com/docs/react/api/react/hooks-experimental/#usesuspensequery
+   * @default false
+   *
+   * @exampleMarkdown
+   * ```ts filename="codegen.ts"
+   *  import type { CodegenConfig } from '@graphql-codegen/cli';
+   *
+   *  const config: CodegenConfig = {
+   *    // ...
+   *    generates: {
+   *      'path/to/file.ts': {
+   *        plugins: ['typescript', 'typescript-operations', 'typescript-react-apollo'],
+   *        config: {
+   *          withHooks: true,
+   *          withSuspenseHooks: true,
+   *        },
+   *      },
+   *    },
+   *  };
+   *  export default config;
+   * ```
+   */
+  withSuspenseHooks?: boolean;
+  /**
    * @description Customized the output by enabling/disabling the generated mutation function signature.
    * @default true
    *

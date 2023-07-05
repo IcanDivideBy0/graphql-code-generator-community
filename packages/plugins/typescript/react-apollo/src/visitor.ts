@@ -19,6 +19,7 @@ export interface ReactApolloPluginConfig extends ClientSideBasePluginConfig {
   withComponent: boolean;
   withHOC: boolean;
   withHooks: boolean;
+  withSuspenseHooks: boolean;
   withMutationFn: boolean;
   withRefetchFn: boolean;
   apolloReactCommonImportFrom: string;
@@ -60,6 +61,7 @@ export class ReactApolloVisitor extends ClientSideBaseVisitor<
       withHOC: getConfigValue(rawConfig.withHOC, false),
       withComponent: getConfigValue(rawConfig.withComponent, false),
       withHooks: getConfigValue(rawConfig.withHooks, true),
+      withSuspenseHooks: getConfigValue(rawConfig.withHooks, false),
       withMutationFn: getConfigValue(rawConfig.withMutationFn, true),
       withRefetchFn: getConfigValue(rawConfig.withRefetchFn, false),
       apolloReactCommonImportFrom: getConfigValue(
@@ -417,6 +419,27 @@ export class ReactApolloVisitor extends ClientSideBaseVisitor<
       );
       hookResults.push(
         `export type ${lazyOperationName}HookResult = ReturnType<typeof use${lazyOperationName}>;`,
+      );
+    }
+
+    if (this.config.withSuspenseHooks && operationType === 'Query') {
+      const suspenseOperationName: string =
+        this.convertName(nodeName, {
+          suffix: pascalCase('SuspenseQuery'),
+          useTypesPrefix: false,
+        }) + this.config.hooksSuffix;
+
+      hookFns.push(
+        `export function use${suspenseOperationName}(baseOptions?: ${this.getApolloReactHooksIdentifier()}.SuspenseQueryHookOptions<${operationResultType}, ${operationVariablesTypes}>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ${this.getApolloReactHooksIdentifier()}.useSuspenseQuery<${operationResultType}, ${operationVariablesTypes}>(${this.getDocumentNodeVariable(
+          node,
+          documentVariableName,
+        )}, options);
+        }`,
+      );
+      hookResults.push(
+        `export type ${suspenseOperationName}HookResult = ReturnType<typeof use${suspenseOperationName}>;`,
       );
     }
 
